@@ -1,0 +1,60 @@
+<?php
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Html;
+
+/**
+ * @var array<array<string>> $tree
+ * @var array<array<string>>    $indiInputs
+ */
+?>
+
+<?php
+$indisCnt = count($indiInputs);
+?>
+
+<?php foreach ($indiInputs as $indiInput): ?>
+
+<?php
+
+    $individual = Registry::individualFactory()->make( $indiInput[0], $tree);
+
+    $attributes = [
+        'id'    => 'input-generation' . $indiInput[0],
+        'name'  => 'xrefGens[' .  $individual->xref() . ']',
+        'class' =>  'form-control',
+        'type'  => 'text',
+        'value' => $indiInput[1],
+        'style' => 'width:25%;display:inline-block;margin:5px 5px;'
+            ."position:relative;top:2px",
+//        'pattern'=> "[0-9]*[1-9]",
+//        'pattern'=> "^[1-9]\\\\d*",
+//        'title' => I18N::translate('Please input valid generation number'),
+//        'required' => 'required',
+        'placeholder'=> I18N::translate('Please input generation'),
+    ];
+
+
+
+        if ($indisCnt!==1){
+            echo '<a target="_blank" href="'.$individual->url().'"><span style="width: 10%;display: inline-block">'.$individual->xref().'</span></a>';
+        }
+
+ ?>
+
+     <?=
+    view('components/select-individual', [
+        'id'         => 'input-name' . $indiInput[0],
+        'name'       =>'xrefs[]',
+        'individual' =>  $individual,
+        'tree'       => $tree,
+        'required'   => true,
+    ])
+
+    , '<input '.Html::attributes($attributes).'>'  ?>
+
+
+<?php endforeach; ?>
+

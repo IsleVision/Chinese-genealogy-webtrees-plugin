@@ -1,0 +1,202 @@
+<?php
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Individual;
+use MyCustomNamespace\ChineseHangingModule;
+use MyCustomNamespace\http\PdfPage;
+
+/**
+ * @var ChineseHangingModule $module
+ * @var array<array<string>> $tree
+ * @var array<Individual>    $individuals
+ * @var array<string>        $indiInputs
+ * @var string               $defaultIndiInput
+ * @var boolean              $genea_all
+ * @var boolean              $show_resume
+ */
+
+
+?>
+
+
+<div id="dialog-confirm" title="<?= I18N::translate('PROMPT') ?>">
+    <p> <?= I18N::translate('Generating the whole genealogy may need long processing time, do you confirm this operation?') ?> </p>
+</div>
+
+<!-- The Modal -->
+<div id="modal" class="hanging-modal">
+    <div class="hanging-modal-content">
+        <p><?= I18N::translate("Please don't close this window, the server is busy processing your request") ?>……</p>
+    </div>
+</div>
+
+<div id="modal-download" class="hanging-modal">
+    <div class="hanging-modal-content">
+        <p><?= I18N::translate("Please don't close this window, the server is busy processing your request") ?>……</p>
+        <p><?= I18N::translate("When the file downloading completes, please refresh the page to proceed") ?></p>
+    </div>
+</div>
+
+<script type="application/javascript">
+$( function (){
+    <?php require_once  __DIR__ . '/../build/jquery-ui.min.js'; ?>
+    <?php require_once  __DIR__ . '/../build/jquery.validate.min.js'; ?>
+    <?php require_once  __DIR__ . '/../build/additional-methods.min.js'; ?>
+
+    $( "main form" ).attr('action',"<?=e(route(PdfPage::ROUTE_PREFIX, ['tree'=> $tree->name(),'action' => 'reportPDF']))?>").append('<input type="hidden" id="hidden-destination" value="view" name="destination"  />');
+
+    jQuery.validator.setDefaults({
+        errorPlacement: function(error, element) {
+            error.insertAfter(element);
+            // error.appendTo(element.parent());
+        }
+    });
+
+    $("#dialog-confirm").dialog({
+        resizable: false,
+        height: 230,
+        autoOpen: false,
+        width: 400,
+        modal: true,
+        open: function(event, ui) {
+            $(".ui-dialog-titlebar-close", ui.dialog ).hide();
+        },
+        buttons: [{
+            text: "<?= I18N::translate('CONFIRM') ?>",
+            click: function () {
+                $('main form').submit();
+                $(this).dialog("close");
+                if ($(this).data('destination')==='view'){
+                    $("#modal").css({ display: "block" });
+                }
+                if ($(this).data('destination')==='download'){
+                    $("#modal-download").css({ display: "block" });
+                }
+            }
+        }, {
+            text: "<?= I18N::translate('CANCEL') ?>",
+            click: function () {
+                $(this).dialog("close");
+            }
+        }]
+
+    });
+
+    $("main form button").on('click', function(e) {
+        e.preventDefault();
+        $("main form").validate();
+        $('.row.form-group:eq(3) input').each(function() {
+            $(this).rules('add', {
+                number: true,
+                required: true,
+                min: 1,
+                maxlength:4,
+                integer: true,
+                messages: {
+                    number: "<?= I18N::translate('Please input number') ?>",
+                    required: "<?= I18N::translate('This field is required') ?>",
+                    min: "<?= I18N::translate('Please input positive integer number(ex. 1,2,3,4)') ?>",
+                    integer: "<?= I18N::translate('Please input integer number(ex. 1,2,3,4)') ?>",
+                    maxlength: "<?= I18N::translate('This number is beyond the acceptable range') ?>",
+                }
+            });
+        });
+        if ($(this).attr('value')=='view'){
+            $("#hidden-destination").attr('value','view');
+        }
+        if ($(this).attr('value')=='download'){
+            $("#hidden-destination").attr('value','download');
+        }
+        if ($( "main form" ).valid()) {
+            if ($(".row.form-group:eq(1) input[type='checkbox']").prop('checked')===true){
+                $("#dialog-confirm").data('destination',$(this).attr('value')).dialog('open');
+            }
+            else{
+                $('main form').submit();
+                if ($(this).attr('value')=='view'){
+                    $("#modal").css({ display: "block" });
+                }
+                if ($(this).attr('value')=='download'){
+                    $("#modal-download").css({ display: "block" });
+                }
+            }
+        }
+    });
+    $(".row.form-group:eq(-5) input").attr('maxlength',16);
+    $(".row.form-group:eq(-6) input").attr('maxlength',16);
+    $(".row.form-group:eq(-2)").hide();
+    $(".row.form-group:eq(3)>div").css({'overflow':'auto','max-height':'250px'}).empty().append(
+        `<?= view($module->name() . '::individual-generation-input', [
+            'indiInputs' =>  [$defaultIndiInput],
+            'tree'       => $tree,
+        ]); ?>`
+    );
+    loadSelect2(false);
+//show_resume checkbox switch
+    $(".row.form-group:eq(2) input[type='checkbox']").prop('checked',true).on('change',function() {
+        if (this.checked){
+            $(".row.form-group").slice(6,11).show();
+        }
+        else {
+            // $(".row.form-group").slice(6,11).find("input[type='checkbox']").prop({'disabled':true,'checked':false});
+            $(".row.form-group").slice(6,11).hide();
+        }
+    });
+    //genea_all checkbox switch
+    $(".row.form-group:eq(1) input[type='checkbox']").prop('checked',false).on('change',function() {
+        $(".row.form-group:eq(3)>div").empty();
+        if(this.checked) {
+            $(".row.form-group:eq(3)>div").append( `<?= view($module->name() .
+                '::individual-generation-input', [
+                    'indiInputs' =>  $indiInputs,
+                    'tree'       => $tree,
+                ]); ?>`
+            );
+            $(".row.form-group:eq(3)>div>select").prop('disabled',true);
+            $(".row.form-group").slice(4,6).hide();
+            loadSelect2(true);
+        }
+        else {
+            // location.reload();
+            $(".row.form-group:eq(3)>div").append( `<?= view($module->name() . '::individual-generation-input', [
+                    'indiInputs' =>  [$defaultIndiInput],
+                    'tree'       => $tree,
+                ]); ?>`
+            );
+            $(".row.form-group").slice(4,6).show();
+            loadSelect2(false);
+        }
+
+    });
+
+    $('[id^=input-name]').on('select2:select', function (e) {
+    // $('[id^=input-name]').on('change', function (e) {
+    //     window.location.href = window.location.href.replace(/\?xref=.+/,'')+'?xref='+e.params.data.id;
+    });
+})
+
+function loadSelect2(genall){
+    // Select2 - activate autocomplete fields
+    const lang = document.documentElement.lang;
+    const select2_languages = {
+        'zh-Hans': 'zh-CN',
+        'zh-Hant': 'zh-TW'
+    };
+    $('select.select2').select2({
+        language: select2_languages[lang] || lang,
+        // Needed for elements that are initially hidden.
+        width: genall==true? '60%':'70%',
+        // Do not escape - we do it on the server.
+        escapeMarkup: function (x) {
+            return x;
+        }
+    });
+// If we clear the select (using the "X" button), we need an empty value
+// (rather than no value at all) for (non-multiple) selects with name="array[]"
+    $('select.select2:not([multiple])')
+        .on('select2:unselect', function (evt) {
+            $(evt.delegateTarget).html('<option value="" selected></option>');
+        });
+
+}
+</script>

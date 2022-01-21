@@ -1,0 +1,42 @@
+<?php foreach ($styles as $path) : ?>
+    <link rel="stylesheet" href="<?= $path ?>">
+<?php endforeach ?>
+
+
+<style type="text/css">
+    label.error {
+        float: none;
+        color: red;
+        margin-left: 72%;
+        vertical-align: top;
+        display: block;
+    }
+
+    /* The Modal (background) */
+    .hanging-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        /*background-color: rgb(0,0,0); !* Fallback color *!*/
+        background-color: rgba(128,128,128,0.5); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .hanging-modal-content {
+        position: absolute;
+        background-color: #fefefe;
+        padding: 20px 20px;
+        top: 45% ;
+        left: 40%;
+        border: 1px solid #888;
+        /*min-width: 20%;*/
+        /*min-height: 5%;*/
+        text-align: center;
+    }
+
+</style>
