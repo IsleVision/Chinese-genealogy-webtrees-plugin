@@ -1,4 +1,5 @@
 # webtrees-plugin
+webtrees 中国家谱图打印插件
 This plugin is for webtrees and is to print Chinese genealogy gragh as per the hanging line style(see the pic 2)
 
 To install the plugin, copy the entire plugin folder to webtrees modules_v4 folder. Then you should be able to find it under the Reports tab.
