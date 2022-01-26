@@ -22,7 +22,7 @@ printing mode is configurable with options defined as follows:
 - Show genealogy all - Print a single person's derived genealogy tree(deselect "Show genealogy all"); or print the whole genealogy tree of all the persons in DB(with "Show genealogy all" selected). 
   In the latter situation, all the top ancestors are automatically calculated and shown in the "fish" row. Users should input each top ancestors' generation sequence so that all their decedents' generation sequences are determined. Each top ancestor represents a separated branch.
 - Show resume - Print personal details table
-- Show generation levels - (only shown when deselect "Show genealogy all") Print the individual's relatives whose generation sequence, counting upwards or downwards, are up to the number specified in "show generation levels". Same as "Generations" entry in the official report "related families"
+- Show generation levels - (only shown when deselect "Show genealogy all") Print the individual's relatives whose generation sequences, counting upwards or downwards, are up to the number specified in "show generation levels". Same as "Generations" entry in the official report "related families"
 - Choose relatives - (only shown when deselect "Show genealogy all")Same as "Choose relatives" entry in the official report "related families"
 - Show photos - Print persons' photos in personal details table.
 - Show birth and death date - Similar to "Show photos" concept
